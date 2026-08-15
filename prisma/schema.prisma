@@ -1,0 +1,65 @@
+datasource db {
+  provider  = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  password     String
+  name         String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  wallets      Wallet[]
+  categories   Category[]
+  transactions Transaction[]
+}
+
+model Wallet {
+  id                  String        @id @default(uuid())
+  userId              String
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                String
+  icon                String        @default("👛")
+  currency            String        @default("VND")
+  initialBalance      Float         @default(0)
+  currentBalance      Float         @default(0)
+  includeInTotal      Boolean       @default(true)
+  createdAt           DateTime      @default(now())
+  transactions        Transaction[] @relation("WalletTx")
+  sourceTransfers     Transaction[] @relation("SourceWalletTx")
+  targetTransfers     Transaction[] @relation("TargetWalletTx")
+}
+
+model Category {
+  id           String        @id @default(uuid())
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type         String        // "expense" hoặc "income"
+  name         String
+  icon         String        @default("🏷️")
+  isSystem     Boolean       @default(false)
+  transactions Transaction[]
+}
+
+model Transaction {
+  id             String    @id @default(uuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type           String    // "expense", "income", "transfer"
+  amount         Float
+  categoryId     String?
+  category       Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  walletId       String?
+  wallet         Wallet?   @relation("WalletTx", fields: [walletId], references: [id], onDelete: Cascade)
+  sourceWalletId String?
+  sourceWallet   Wallet?   @relation("SourceWalletTx", fields: [sourceWalletId], references: [id], onDelete: Cascade)
+  targetWalletId String?
+  targetWallet   Wallet?   @relation("TargetWalletTx", fields: [targetWalletId], references: [id], onDelete: Cascade)
+  date           DateTime  @default(now())
+  note           String?
+  createdAt      DateTime  @default(now())
+}
