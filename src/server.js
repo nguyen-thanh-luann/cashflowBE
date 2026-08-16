@@ -5,7 +5,8 @@ import 'dotenv/config';
 
 import authRoutes from './routes/authRoutes.js'
 import transactionRoutes from './routes/transactionRoutes.js';
-import categoriesRoutes from './routes/categoriesRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js';
+import walletRoutes from './routes/walletRoutes.js';
 
 const app = express();
 
@@ -15,8 +16,9 @@ app.use(express.json());
 
 // Main Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/categories', categoriesRoutes);
+app.use('/api/transaction', transactionRoutes);
+app.use('/api/category', categoryRoutes);
+app.use('/api/wallet', walletRoutes);
 
 // Healthcheck Route
 app.get('/', (req, res) => {
